@@ -5,7 +5,9 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
+/*static char *font = "Hack:pixelsize=14:antialias=true:autohint=true";*/
+static char *font = "Source Code Pro Medium:pixelsize=14:antialias=true:autohint=true";
+
 static int borderpx = 2;
 
 /*
@@ -206,6 +208,7 @@ ResourcePref resources[] = {
 		{ "borderpx",     INTEGER, &borderpx },
 		{ "cwscale",      FLOAT,   &cwscale },
 		{ "chscale",      FLOAT,   &chscale },
+        { "alpha",        FLOAT,  &alpha },
 };
 
 /*
