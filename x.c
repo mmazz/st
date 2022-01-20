@@ -821,6 +821,17 @@ xloadcols(void)
 	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * alpha);
 	dc.col[defaultbg].pixel &= 0x00FFFFFF;
 	dc.col[defaultbg].pixel |= (unsigned char)(0xff * alpha) << 24;
+
+	/* set alpha value of selbg color */
+	dc.col[selectionbg].color.alpha = (unsigned short)(0xffff * alpha);
+	dc.col[selectionbg].color.red =
+		((unsigned short)(dc.col[selectionbg].color.red * alpha)) & 0xff00;
+	dc.col[selectionbg].color.green =
+		((unsigned short)(dc.col[selectionbg].color.green * alpha)) & 0xff00;
+	dc.col[selectionbg].color.blue =
+		((unsigned short)(dc.col[selectionbg].color.blue * alpha)) & 0xff00;
+	dc.col[selectionbg].pixel &= 0x00FFFFFF;
+	dc.col[selectionbg].pixel |= (unsigned char)(0xff * alpha) << 24;
 	loaded = 1;
 }
 
@@ -1474,6 +1485,12 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		bg = temp;
 	}
 
+	if (base.mode & ATTR_SELECTED) {
+		bg = &dc.col[selectionbg];
+		if (!ignoreselfg)
+			fg = &dc.col[selectionfg];
+	}
+
 	if (base.mode & ATTR_BLINK && win.mode & MODE_BLINK)
 		fg = bg;
 
@@ -1540,7 +1557,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 
 	/* remove the old cursor */
 	if (selected(ox, oy))
-		og.mode ^= ATTR_REVERSE;
+		og.mode |= ATTR_SELECTED;
 	xdrawglyph(og, ox, oy);
 
 	if (IS_SET(MODE_HIDE))
@@ -1553,23 +1570,13 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 
 	if (IS_SET(MODE_REVERSE)) {
 		g.mode |= ATTR_REVERSE;
+		g.fg = defaultcs;
 		g.bg = defaultfg;
-		if (selected(cx, cy)) {
-			drawcol = dc.col[defaultcs];
-			g.fg = defaultrcs;
-		} else {
-			drawcol = dc.col[defaultrcs];
-			g.fg = defaultcs;
-		}
+		drawcol = dc.col[defaultrcs];
 	} else {
-		if (selected(cx, cy)) {
-			g.fg = defaultfg;
-			g.bg = defaultrcs;
-		} else {
-			g.fg = defaultbg;
-			g.bg = defaultcs;
-		}
-		drawcol = dc.col[g.bg];
+		g.fg = defaultbg;
+		g.bg = defaultcs;
+		drawcol = dc.col[defaultcs];
 	}
 
 	/* draw the new one */
@@ -1676,7 +1683,7 @@ xdrawline(Line line, int x1, int y1, int x2)
 		if (new.mode == ATTR_WDUMMY)
 			continue;
 		if (selected(x, y1))
-			new.mode ^= ATTR_REVERSE;
+			new.mode |= ATTR_SELECTED;
 		if (i > 0 && ATTRCMP(base, new)) {
 			xdrawglyphfontspecs(specs, base, i, ox, y1);
 			specs += i;
