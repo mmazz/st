@@ -143,8 +143,10 @@ unsigned int defaultfg = 257;
 unsigned int defaultbg = 256;
 unsigned int defaultcs = 258;
 static unsigned int defaultrcs = 256;
-unsigned int selectionbg = 256;
-unsigned int selectionfg = 257;
+// selectionbg its the color of selection text in terminal, 67 SteelBlue, 24 DeepSkyBlue4
+// 60 MediumPurple4, 59 Grey37
+unsigned int selectionbg = 59;
+unsigned int selectionfg = 0;
 /* If 0 use selectionfg as foreground in order to have a uniform foreground-color */
 /* Else if 1 keep original foreground-color of each cell => more colors :) */
 static int ignoreselfg = 1;
